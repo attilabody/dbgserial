@@ -1,0 +1,10 @@
+Release*/
+Debug*/
+.ino.cpp
+*.d
+.settings/
+.metadata/
+**/.idea/workspace.xml
+*.s#?
+*.sch.lck
+.vs/
