@@ -13,7 +13,7 @@ int main(void)
 {
     DbgSerial::GetInstance().Initialize();
     sei();
-    long    l = 0;
+    uint32_t    l = 0;
 
     /* Replace with your application code */
     while (1)

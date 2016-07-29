@@ -23,8 +23,8 @@ extern "C" void USART2_UDRE_vect(void) __attribute__((signal));
 
 class __FlashStringHelper;
 #define F(string_literal) (reinterpret_cast<const __FlashStringHelper *>(PSTR(string_literal)))
-#define DBGPRINTLN(str) DbgSerial::GetInstance().Send(F(str "\r\n"))
-#define DBGPRINT(str) DbgSerial::GetInstance().Send(F(str))
+#define DBGPRINTLN(str) DbgSerial::GetInstance().Send(str "\n")
+#define DBGPRINT(str) DbgSerial::GetInstance().Send(str)
 
 class DbgSerial final
 {
@@ -54,8 +54,10 @@ class DbgSerial final
         {
             return m_instance;
         }
-        size_t Send(void* buffer, size_t count, bool block);
-        size_t Send(long l, bool hex = false);
+        size_t Send(void* buffer, size_t count);
+        size_t Send(char c);
+        size_t Send(unsigned long l, bool hex = false);
+        size_t Send(unsigned int i, bool hex = false);
         size_t Send(const char* str);
         size_t Send(const __FlashStringHelper* ifsh);
 

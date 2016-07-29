@@ -127,7 +127,7 @@ size_t DbgSerial::FillTxBuffer(char* buffer, size_t count)
 
 
 ////////////////////////////////////////////////////////////////////
-size_t  DbgSerial::Send(void* buffer, size_t count, bool block)
+size_t  DbgSerial::Send(void* buffer, size_t count)
 {
     size_t  sent = 0, copied;
 
@@ -135,7 +135,7 @@ size_t  DbgSerial::Send(void* buffer, size_t count, bool block)
     {
         while (m_txCount == sizeof(m_txBuffer))
         {
-            if (!block)
+            if (!m_block)
             {
                 return sent;
             }
@@ -160,29 +160,73 @@ size_t  DbgSerial::Send(void* buffer, size_t count, bool block)
 }
 
 ////////////////////////////////////////////////////////////////////
-size_t DbgSerial::Send(long l, bool hex)
+size_t  DbgSerial::Send(char c)
 {
-    char    buffer[12];
+    while (m_txCount == sizeof(m_txBuffer))
+    {
+        if (!m_block)
+        {
+            return 0;
+        }
+    }
+
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        FillTxBuffer(&c, 1);
+
+        if (!(_UCSRB & _BV(_UDRIE)))
+        {
+            _UCSRB |= _BV(_UDRIE);
+        }
+    }
+
+    return 1;
+}
+
+////////////////////////////////////////////////////////////////////
+size_t DbgSerial::Send(unsigned long l, bool hex)
+{
+    char    buffer[13];
 
     if (hex)
     {
         buffer[0] = '0';
         buffer[1] = 'x';
-        ltoa(l, buffer, 16);
+        ultoa(l, buffer, 16);
     }
     else
     {
-        ltoa(l, buffer, 10);
+        ultoa(l, buffer, 10);
     }
 
-    return Send(buffer, strlen(buffer), m_block);
+    return Send(buffer, strlen(buffer));
+}
+
+
+////////////////////////////////////////////////////////////////////
+size_t DbgSerial::Send(unsigned int u, bool hex)
+{
+    char    buffer[8];
+
+    if (hex)
+    {
+        buffer[0] = '0';
+        buffer[1] = 'x';
+        utoa(u, buffer, 16);
+    }
+    else
+    {
+        utoa(u, buffer, 10);
+    }
+
+    return Send(buffer, strlen(buffer));
 }
 
 
 ////////////////////////////////////////////////////////////////////
 size_t DbgSerial::Send(const char* str)
 {
-    return Send((void*)str, strlen(str), m_block);
+    return Send((void*)str, strlen(str));
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -190,7 +234,7 @@ size_t DbgSerial::Send(const __FlashStringHelper* ifsh)
 {
     size_t sent = 0;
     PGM_P p = reinterpret_cast<PGM_P>(ifsh);
-    unsigned char c;
+    char c;
 
     while (true)
     {
@@ -201,7 +245,7 @@ size_t DbgSerial::Send(const __FlashStringHelper* ifsh)
             break;
         }
 
-        if (Send(&c, 1, true) == 0)
+        if (Send(c) == 0)
         {
             break;
         }
