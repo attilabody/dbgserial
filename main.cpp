@@ -11,17 +11,20 @@
 ////////////////////////////////////////////////////////////////////
 int main(void)
 {
-    DbgSerial::GetInstance().Initialize();
-    sei();
-    uint32_t    l = 0;
+	#ifdef DEBUG_SERIAL
+	DbgSerial::GetInstance().Initialize();
+	#endif
+	sei();
+	uint32_t    l = 0;
 
-    /* Replace with your application code */
-    while (1)
-    {
-        DbgSerial::GetInstance().Send(l++);
-        DbgSerial::GetInstance().Send(" Lofaszbingo\r\n");
-        DbgSerial::GetInstance().Send(F("Flash Lofaszbingo\r\n"));
-        _delay_ms(100);
-    }
+	/* Replace with your application code */
+	while (1)
+	{
+		DPS(l++);
+		DPS(" Lofaszbingo ");
+		DPS(F("Flash "));
+		DPS((uint16_t)0, true);
+		_delay_ms(100);
+	}
 }
 
