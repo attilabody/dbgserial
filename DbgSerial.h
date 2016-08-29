@@ -81,10 +81,11 @@ class DbgSerial final
 			m_block = block;
 		}
 
+		void TxDataRegisterEmpty();	//module should be able to work with interrupts disabled
+
 	protected:
 	private:
 		DbgSerial() = default;
-		void TxDataRegisterEmpty();
 		size_t FillTxBuffer(char *buffer, size_t count);
 
 #ifdef USART_UDRE_vect

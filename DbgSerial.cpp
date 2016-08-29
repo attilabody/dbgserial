@@ -12,7 +12,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "DbgSerial.h"
-#include "config.h"
 
 #if defined(DBGSERIAL_USART0)
 
